@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-volume
+  namespace: kube-public
+data:
+  application.yaml: |
+    micronaut:
+      application:
+        name: dynamicScheduler
+      ssl:
+        enabled: true
+        keyStore:
+          path: classpath:server.p12 
+          password: mypassword 
+          type: PKCS12
+      server:
+        host: 0.0.0.0
+
+    dynamic-scheduler:
+      jaeger-host: http://jaeger-query.observability:80
+      interval: 4m
+      startwait: 20m
+      traceHistory: 3600000
+      latencyInformer:
+        configmap: default
+        namespace: default
+        hosts: hosts

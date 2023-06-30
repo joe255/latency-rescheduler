@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: dynamicScheduler
+  ssl:
+    enabled: true
+    keyStore:
+      path: classpath:server.p12 
+      password: mypassword 
+      type: PKCS12

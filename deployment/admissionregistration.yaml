@@ -1,0 +1,52 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: "dynamic-scheduler.kube-public.svc-valid"
+webhooks:
+- name: "dynamic-scheduler.kube-public.svc-valid"
+  rules:
+  - apiGroups:   [""]
+    apiVersions: ["v1"]
+    operations:  ["CREATE","UPDATE"]
+    resources:   ["pods"]
+    scope:       "Namespaced"
+  clientConfig:
+    service:
+      namespace: "kube-public"
+      name: "dynamic-scheduler"
+      port: 8443
+      path: /admission
+    caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJakNDQWdvQ0NRQ1JzV0x0bkg0eEREQU5CZ2txaGtpRzl3MEJBUXNGQURCVE1Rc3dDUVlEVlFRR0V3SkQKVGpFTE1Ba0dBMVVFQ0F3Q1IwUXhDekFKQmdOVkJBY01BbE5hTVJNd0VRWURWUVFLREFwQlkyMWxMQ0JKYm1NdQpNUlV3RXdZRFZRUUREQXhCWTIxbElGSnZiM1FnUTBFd0hoY05NakV3T0RFMU1UVXdOalUyV2hjTk1qSXdPREUxCk1UVXdOalUyV2pCVE1Rc3dDUVlEVlFRR0V3SkRUakVMTUFrR0ExVUVDQXdDUjBReEN6QUpCZ05WQkFjTUFsTmEKTVJNd0VRWURWUVFLREFwQlkyMWxMQ0JKYm1NdU1SVXdFd1lEVlFRRERBeEJZMjFsSUZKdmIzUWdRMEV3Z2dFaQpNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUR2b0pmdWRSeHJxYWg1bDdsZS9LTmprRFJ2ClVnbnI4ak5BKzFnc0FwTkgxQkNjZlJDSDdQOW52TGx4WU00VHNSSFh5Q3BCRSt0c3IxRDI2K2ZyRm1RV2dKNFgKb3NOUUtsSFMyUit1SG05bW1oQXBpRVBSSUNEcFNIWnAyTERYVWdabElvbFpVcnB2b0hvSnhleEkreFNwczIyNwpWcEl0R2dPczhPR2V2NjRpaHBLRWpHMnorcG0rU25ZcXIxTk80YUgzc3Z0ak02Z2NuNEJPdUtqYXlVRW9lZEFoCm80VVdBK1ZoQTd3eCtKbkJleFdVbjZZWUNLLzNlb05IUk5WRUdzN2xWSFRXSzFVYVdyRER5Q3JYMi9zYVc0ZHYKTllVdmlITlJMMFdNSDlCd0srN0xwcWtiSlhHeDZvTC9zMm94OVQxS2toSTNMV2VJQXdxdDhpa0ptVU5GQWdNQgpBQUV3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUdKOFU2TUozemZJRUNSRU9xcGhDdmovdTdpd3l1Tk8relYrCk1JU0lmYkRTMFExUHN5TTRxTTk5OHJ3S3RFNDZLSllGUEJUbjZ4TjBYWk9sQmFtUVFTNUl4cmkyQ3hLNjNlS3kKVXJJNXVWdUh0RTloemo1T1lzT3Y1cFMrNHlDcTg3Y1J2aGYyM1Y0b1VYdzFkU0FyWnpGZWZrNVd4Z0V3R2JlagpoTHd2T2F1Z3F2YmhpTzZhaHlZKzJqVGQ5dTU5RTlqVDc3K2plZjJIWTJjNlNrL201eDI2Uyt0Q29XVHgzUFoyCmU5NG81U05PVkFLRmN1SGUrMTNESG81eUN0TXlBZThQT3orRFFqZWlSY3FyemJVZDVEcU9rZWZmMnc4c05yTzQKaUd0cHdtV3NJMmZrc3hNdENteCtFNnRlSDhNUlJxS1h1WVltZlg4R3RYOWpNZ2ZUdXBjPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  timeoutSeconds: 15
+  failurePolicy: Ignore
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: "dynamic-scheduler.kube-public.svc-mutating"
+webhooks:
+- name: "dynamic-scheduler.kube-public.svc-mutating"
+  namespaceSelector:
+    matchExpressions:
+    - key: schedule
+      operator: In
+      values: ["true","activated"]
+  rules:
+  - apiGroups:   ["apps"]
+    apiVersions: ["v1"]
+    operations:  ["CREATE"]
+    resources:   ["deployments"]
+    scope:       "Namespaced"
+  clientConfig:
+    service:
+      namespace: "kube-public"
+      name: "dynamic-scheduler"
+      port: 8443
+      path: /admission2
+    caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJakNDQWdvQ0NRQ1JzV0x0bkg0eEREQU5CZ2txaGtpRzl3MEJBUXNGQURCVE1Rc3dDUVlEVlFRR0V3SkQKVGpFTE1Ba0dBMVVFQ0F3Q1IwUXhDekFKQmdOVkJBY01BbE5hTVJNd0VRWURWUVFLREFwQlkyMWxMQ0JKYm1NdQpNUlV3RXdZRFZRUUREQXhCWTIxbElGSnZiM1FnUTBFd0hoY05NakV3T0RFMU1UVXdOalUyV2hjTk1qSXdPREUxCk1UVXdOalUyV2pCVE1Rc3dDUVlEVlFRR0V3SkRUakVMTUFrR0ExVUVDQXdDUjBReEN6QUpCZ05WQkFjTUFsTmEKTVJNd0VRWURWUVFLREFwQlkyMWxMQ0JKYm1NdU1SVXdFd1lEVlFRRERBeEJZMjFsSUZKdmIzUWdRMEV3Z2dFaQpNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUR2b0pmdWRSeHJxYWg1bDdsZS9LTmprRFJ2ClVnbnI4ak5BKzFnc0FwTkgxQkNjZlJDSDdQOW52TGx4WU00VHNSSFh5Q3BCRSt0c3IxRDI2K2ZyRm1RV2dKNFgKb3NOUUtsSFMyUit1SG05bW1oQXBpRVBSSUNEcFNIWnAyTERYVWdabElvbFpVcnB2b0hvSnhleEkreFNwczIyNwpWcEl0R2dPczhPR2V2NjRpaHBLRWpHMnorcG0rU25ZcXIxTk80YUgzc3Z0ak02Z2NuNEJPdUtqYXlVRW9lZEFoCm80VVdBK1ZoQTd3eCtKbkJleFdVbjZZWUNLLzNlb05IUk5WRUdzN2xWSFRXSzFVYVdyRER5Q3JYMi9zYVc0ZHYKTllVdmlITlJMMFdNSDlCd0srN0xwcWtiSlhHeDZvTC9zMm94OVQxS2toSTNMV2VJQXdxdDhpa0ptVU5GQWdNQgpBQUV3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUdKOFU2TUozemZJRUNSRU9xcGhDdmovdTdpd3l1Tk8relYrCk1JU0lmYkRTMFExUHN5TTRxTTk5OHJ3S3RFNDZLSllGUEJUbjZ4TjBYWk9sQmFtUVFTNUl4cmkyQ3hLNjNlS3kKVXJJNXVWdUh0RTloemo1T1lzT3Y1cFMrNHlDcTg3Y1J2aGYyM1Y0b1VYdzFkU0FyWnpGZWZrNVd4Z0V3R2JlagpoTHd2T2F1Z3F2YmhpTzZhaHlZKzJqVGQ5dTU5RTlqVDc3K2plZjJIWTJjNlNrL201eDI2Uyt0Q29XVHgzUFoyCmU5NG81U05PVkFLRmN1SGUrMTNESG81eUN0TXlBZThQT3orRFFqZWlSY3FyemJVZDVEcU9rZWZmMnc4c05yTzQKaUd0cHdtV3NJMmZrc3hNdENteCtFNnRlSDhNUlJxS1h1WVltZlg4R3RYOWpNZ2ZUdXBjPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+  admissionReviewVersions: ["v1", "v1beta1"]
+  sideEffects: None
+  timeoutSeconds: 15
+  failurePolicy: Ignore

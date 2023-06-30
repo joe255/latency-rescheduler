@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamic-scheduler
+  namespace: kube-public
+  labels:
+    app: dynamic-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dynamic-scheduler
+  template:
+    metadata:
+      labels:
+        app: dynamic-scheduler
+    spec:
+      serviceAccountName: dynamicscheduler
+      containers:
+      - name: dynamic-scheduler
+        image: registry/dynamic-scheduler:0.0.3
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+        imagePullPolicy: Always
+        env:
+          - name:  MICRONAUT_CONFIG_FILES
+            value: /etc/config/application.yaml
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config     
+        resources:
+          limits:
+            cpu: 500m
+            memory: 100Mi
+          requests:
+            cpu: 500m
+            memory: 100Mi
+      nodeSelector:
+        kubernetes.io/hostname: "joe"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: config-volume
+            items:
+            - key: application.yaml
+              path: application.yaml

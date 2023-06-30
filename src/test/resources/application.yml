@@ -1,0 +1,28 @@
+micronaut:
+  application:
+    name: dynamicScheduler
+  ssl:
+    enabled: true
+    keyStore:
+      path: classpath:server.p12 
+      password: mypassword 
+      type: PKCS12
+  server:
+    host: 0.0.0.0
+
+dynamic-scheduler:
+  #skip-jaeger-test: enabled
+  jaeger-host: http://localhost:16686
+  interval: 10m
+  traceHistory: 3600000
+  latencyInformer:
+    configmap: default
+    namespace: default
+    hosts: hosts
+  
+logger:
+  levels:
+    io:
+      micronaut:
+        http:
+          client: DEBUG
